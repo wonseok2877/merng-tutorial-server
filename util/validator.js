@@ -27,14 +27,15 @@ module.exports.validateRegisterInput = (
   if (password.trim() === "") {
     errors.password = "Password must not be empty";
   } else if (password !== confirmPassword) {
-    errors.confirmPassword = "Passwords must match";
+    errors.confirmPassword = "Passwords must match ㅗ";
   }
 
+  // 여기서 뱉는 errors와 valid는 userResolver에서 쓴다.
   return {
     errors,
-    // 에러가 없을 경우 data가 valid하다는걸 의미
     /* ! Objecy.keys
-    : 해당 객체의 key를 인식한다 와우  */
+    : 해당 객체의 key를 인식한다 와우 
+    즉  error가 없어야 valid가 참이 되는 것. */
     valid: Object.keys(errors).length < 1,
   };
 };
@@ -50,7 +51,6 @@ module.exports.validateLoginInput = (username, password) => {
 
   return {
     errors,
-    // 에러가 없을 경우 data가 valid하다는걸 의미
     valid: Object.keys(errors).length < 1,
   };
 };

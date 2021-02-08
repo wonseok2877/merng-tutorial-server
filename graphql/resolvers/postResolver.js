@@ -3,13 +3,15 @@ const { AuthenticationError, UserInputError } = require("apollo-server");
 const Post = require("../../models/Post");
 const checkAuth = require("../../util/check-auth");
 
-/* what is resolvers?
+/* 4. Resolver
+what is resolvers?
 : for each query or mutation or subscription, it has corresponding resolver.
-process of logic of each data  
+process of logic of each data
+컨트롤러와 흡사하다.
 설명 필요
 */
 
-/* 결국 graphQL도 HTTP요청의 수단이다.
+/* 4-0. 결국 graphQL도 HTTP요청의 수단이다.
 postman에서     {
     "query":"mutation{login(username:\"koala\", password:\"123\"){id username token}}"
 }
@@ -17,10 +19,15 @@ postman에서     {
 
 module.exports = {
   Query: {
+    /* 4-1. typeDefs에서 정의한 Query문에 대한 함수 !
+     */
     async getPosts() {
       console.log("getPosts");
+      // try & catch  : 에러가 날 일은 없겠지만, 혹시나 날 경우엔 서버가 멈춘다.
       try {
-        // .find !  : it will gonna fetch all of the data in models
+        /* 4-2. DB에 접근. 
+        .find ! : it will gonna fetch all of the post data in models
+        mongoose.Schema에 따라 만들어진 model을 모두 찾는다. */
         // .sort : 뱉어낼 때 배열의 순서를 바꿀 수 있음.
         const posts = await Post.find().sort({ createdAt: -1 });
         return posts;
@@ -29,6 +36,8 @@ module.exports = {
         throw new Error(err);
       }
     },
+    /* 4-3. 특정 id 인자값에 따른 DB 접근.
+    프론트엔드 쪽에서 id를 넣고 요청할 것. 그러면 여기선 그에 맞는 data를 모두 뱉는다. */
     async getPost(_, { postId }) {
       try {
         const post = await Post.findById(postId);
@@ -42,18 +51,19 @@ module.exports = {
       }
     },
   },
-  // mutation
   Mutation: {
     // context has request body now, and we can access to the header of request, determine that this user is authentificated.
+    /* ? ? :  body랑  context 어디서 오는거 ?
+    설명 씹 필요.
+    */
     async createPost(_, { body }, context) {
       console.log("createPosts");
-      /* logic : user will get auth token and then
-       they put it in autorization header, send the header to request,
-       then we need to get that token and decode it,
-       and get the information that the user is authentificated for sure.
-       finally, we create a post.*/
+      /* 5. autoriaztion logic 
+      클라이언트 : 유저의 token -> 인증 header에 넣음 -> 요청
+      서버 : 유저의 token -> checkAuth 함수에 넣음 -> decoding(해석)
+       -> DB에 data만듬 */
       const user = checkAuth(context);
-
+      console.log(user);
       // conditional : if the body of the post is empty, throws an error.
       if (body.trim() === "") {
         throw new Error("Post body must not be empty");
@@ -85,6 +95,7 @@ module.exports = {
       try {
         const post = await Post.findById(postId);
         // we will allow users to delete only each ones'.
+        // post가 있는지 없는지 여부는 여기서 자동으로 걸러준다.
         if (user.username === post.username) {
           await post.delete();
           return "Post deleted successfully~~~";

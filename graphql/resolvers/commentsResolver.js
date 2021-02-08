@@ -6,7 +6,7 @@ module.exports = {
   Mutation: {
     createComment: async (_, { postId, body }, context) => {
       // logged in authorization
-      //   ? 왜 {}로 감싸줘야 하지?
+      // { username } = user.username
       const { username } = checkAuth(context);
       // conditional : body가 비어있을 경우 에러 던짐.
       if (body.trim() === "") {
@@ -43,7 +43,7 @@ module.exports = {
         const commentIndex = post.comments.findIndex((c) => c.id === commentId);
         // conditional : 그 다음엔 코멘트의 username이 checkAuth함수를 거쳐 만들어진 username과 같으면, 즉 해당 코멘드를 쓴 사람일 경우에만 실행
         if (post.comments[commentIndex].username === username) {
-          // ? : splice 설명 필요
+          // splice() : javascript의 array method다. 해당 index위치의 코멘트를 하나 지워줌.
           post.comments.splice(commentIndex, 1);
           await post.save();
           return post;

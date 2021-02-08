@@ -4,37 +4,19 @@ const commentsResolver = require("./commentsResolver");
 
 // now we combine two resolvers in this file.
 module.exports = {
-  /* each  time any mutation, Query, Subscription that returns a Post, 
+  /* modifier !
+  typeDef에서 정의된 collection의 field를 Query든 Mutation이든 한 번이라도 건들면,
+  그에 대한 값을 modifier에서 정해줄 수 있다.
+  each  time any mutation, Query, Subscription that returns a Post, 
   it will go through this post modifier.
-  설명 필요 */
+  그래서 likeCount와 commentCount는 따로 resolver에서 정의하지 않아도 값을 구할 수 있는 것.*/
   Post: {
-    // !: parent comes from getPost now.
-    /*console.log(parent);
-    {
-        _id: 60166c04acc97747e05e5f90,
-        body: 'creating post ??',
-        user: 60165a2e9957681dbcdda220,
-        username: 'koala',
-        createdAt: '2021-01-31T08:36:20.727Z',
-        comments: [
-          {
-            _id: 6017533f9cab564594b81510,
-            body: "I don't understand this!!!",
-            username: 'lion',
-            createdAt: '2021-02-01T01:02:55.867Z'
-          },
-          {
-            _id: 60174b78540682314c71ea9a,
-            body: 'new comment on koala!',
-            username: 'lion',
-            createdAt: '2021-02-01T00:29:44.086Z'
-          }
-        ],
-        likes: [],
-        __v: 7
-    }
-    */
-    likeCount: (parent) => parent.likes.length,
+    likeCount: (parent) => {
+      /* parent !
+      프론트쪽에서 뭘 요청하든 parent는 해당 parent, 여기선 포스트의 
+      모오오오든 정보를 다 가져오네. */
+      return parent.likes.length;
+    },
     commentCount: (parent) => parent.comments.length,
   },
   Query: {
